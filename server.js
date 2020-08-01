@@ -25,12 +25,6 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  const fireResponse = (res, httpCode, JsonBody) => {
-    res.statusCode = httpCode;
-    res.setHeader('Content-Type', 'application/json');
-    res.end(JsonBody);
-  }
-  
   switch (req.method) {
     case HTTP_METHOD.GET : {
       const data = productImgApi.Get(req);
@@ -40,34 +34,22 @@ const server = http.createServer((req, res) => {
     };
     break;
     case HTTP_METHOD.POST :  {
-      let body = '';
-      req.on('data', chunk => {
-          body += chunk.toString();
-      });
-      req.on('end', () => {
+      bodyData(req, (body) => {
         productImgApi.Post(req, JSON.parse(body));
         fireResponse(res, 200, RESPONSE_BODY.OK);
-      });
+      })
     };
     break;
     case HTTP_METHOD.PUT :  {
-      let body = '';
-      req.on('data', chunk => {
-          body += chunk.toString();
-      });
-      req.on('end', () => {
+      bodyData(req, (body) => {
         const ret = productImgApi.Put(req, JSON.parse(body));
-        let responseBody;
-        ret ? responseBody = RESPONSE_BODY.OK : responseBody = RESPONSE_BODY.INVALID;
-        fireResponse(res, 200, responseBody)
+        fireResponseFromBool(res, ret);
       });
     };
     break;
     case HTTP_METHOD.DELETE : {
       const ret = productImgApi.Delete(req);
-      let responseBody;
-      ret ? responseBody = RESPONSE_BODY.OK : responseBody = RESPONSE_BODY.INVALID;
-      fireResponse(res, 200, responseBody)
+      fireResponseFromBool(res, ret);
     };
     break;
   }
@@ -76,6 +58,31 @@ const server = http.createServer((req, res) => {
 server.listen(port, hostname, () => {
   console.log(`Server running at http://${hostname}:${port}/`);
 });
+
+
+// to be moved to another file // ReqResHelper
+const fireResponse = (res, httpCode, JsonBody) => {
+  res.statusCode = httpCode;
+  res.setHeader('Content-Type', 'application/json');
+  res.end(JsonBody);
+}
+
+const fireResponseFromBool = (res, bool) => {
+  let responseBody;
+  bool ? responseBody = RESPONSE_BODY.OK : responseBody = RESPONSE_BODY.INVALID;
+  fireResponse(res, 200, responseBody)
+}
+
+const bodyData = (req, callback) => {
+  let body = '';
+  req.on('data', chunk => {
+      body += chunk.toString();
+  });
+  req.on('end', () => {
+    callback(body);
+  });
+} 
+// ----
 
 // to be moved to another file
 class SimpleProductImageServiceApiHandler {
