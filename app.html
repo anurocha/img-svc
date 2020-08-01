@@ -10,9 +10,9 @@
         <div style="margin-top: 6;">
             <textarea id='REQESTPARAM' placeholder="Click on Generate the ... param" style="width: 300; height: 100;"></textarea>
         </div>
-        <div>Request To</div>
+        <div style="font-size: larger;">Request To</div>
         <div id=REQUEST>!</div>
-        <div>Response:</div>
+        <div style="font-size: larger;">Response:</div>
         <div id=RESPONSE>!</div>
     </body>
     <script src="client.js"></script>
@@ -30,45 +30,60 @@
         const ImgSvcApiEndpoint = `${apiEndpoint}/product`;
         const reponseArea = document.getElementById('RESPONSE');
         const requestTo = document.getElementById('REQUEST');
+        const updateRequestUrl = (method, url) => {
+            requestTo.innerText = `${method} ${url}`;
+            reponseArea.innerText = '';
+        }
+        const showErr = (msg) => {
+            reponseArea.innerText = msg;
+        }
         document.getElementById('GET').onclick = (e) => {
             const param = document.getElementById('REQESTPARAM').value;
             const fetchUrl = `${ImgSvcApiEndpoint}/${param}`;
+            updateRequestUrl('GET', fetchUrl);
             fetch(fetchUrl).then( (res) => {
                 res.json().then( data => {
-                    requestTo.innerText = fetchUrl;
                     reponseArea.innerText = JSON.stringify(data);
                 })
+            }).catch( err => {
+                showErr(err);
             });
         }
         document.getElementById('DELETE').onclick = (e) => {
             const param = document.getElementById('REQESTPARAM').value;
             const fetchUrl = `${ImgSvcApiEndpoint}/${param}`;
+            updateRequestUrl('DELETE', fetchUrl);
             fetch(fetchUrl, { method: 'DELETE'}).then( (res) => {
                 res.json().then( data => {
-                    requestTo.innerText = fetchUrl;
                     reponseArea.innerText = JSON.stringify(data);
                 })
+            }).catch( err => {
+                showErr(err);
             });
         }
         document.getElementById('POST').onclick = (e) => {
             const param = document.getElementById('REQESTPARAM').value;
             const fetchUrl = `${ImgSvcApiEndpoint}`;
+            updateRequestUrl('POST', fetchUrl);
             fetch(fetchUrl, { method: 'POST', body: param}).then( (res) => {
                 res.json().then( data => {
-                    requestTo.innerText = fetchUrl;
                     reponseArea.innerText = JSON.stringify(data);
                 })
+            }).catch( err => {
+                showErr(err);
             });
         }
 
         document.getElementById('PUT').onclick = (e) => {
             const param = document.getElementById('REQESTPARAM').value;
             const fetchUrl = `${ImgSvcApiEndpoint}`;
+            updateRequestUrl('PUT', fetchUrl);
             fetch(fetchUrl, { method: 'PUT', body: param}).then( (res) => {
                 res.json().then( data => {
-                    requestTo.innerText = fetchUrl;
                     reponseArea.innerText = JSON.stringify(data);
                 })
+            }).catch( err => {
+                showErr(err);
             });
         }
     </script>
