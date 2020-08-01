@@ -19,45 +19,62 @@ const RESPONSE_BODY = {
 }
 
 const server = http.createServer((req, res) => {
-  if( !req.url.includes(productImgApi.path) ) {
-    res.statusCode = 400;
-    res.setHeader('Content-Type', 'text/plain');
-    res.end(RESPONSE_BODY.NOTSUPPORT);
-    return;
-  }
+ 
+    if( !req.url.includes(productImgApi.path) ) {
+      res.statusCode = 400;
+      res.setHeader('Content-Type', 'text/plain');
+      res.end(RESPONSE_BODY.NOTSUPPORT);
+      return;
+    }
 
-  switch (req.method) {
-    case HTTP_METHOD.GET : {
-      const data = productImgApi.Get(req);
-      let responseBody;
-      data !== undefined ? responseBody = JSON.stringify(data) : responseBody = RESPONSE_BODY.INVALID;
-      fireResponse(res, 200, responseBody);
-    };
-    break;
-    case HTTP_METHOD.POST :  {
-      bodyData(req, (body) => {
-        productImgApi.Post(req, JSON.parse(body));
-        fireResponse(res, 200, RESPONSE_BODY.OK);
-      })
-    };
-    break;
-    case HTTP_METHOD.PUT :  {
-      bodyData(req, (body) => {
-        const ret = productImgApi.Put(req, JSON.parse(body));
+    
+    switch (req.method) {
+      case HTTP_METHOD.GET : {
+        const data = productImgApi.Get(req);
+        let responseBody;
+        data !== undefined ? responseBody = JSON.stringify(data) : responseBody = RESPONSE_BODY.INVALID;
+        fireResponse(res, 200, responseBody);
+      };
+      break;
+
+      case HTTP_METHOD.POST :  {
+        bodyData(req, (body) => {
+          try {
+            const ret = productImgApi.Post(req, JSON.parse(body));
+            fireResponseFromBool(res, ret);
+          }
+          catch (err) {
+            fireResponseFromBool(res, false);
+          }
+        })
+      };
+      break;
+
+      case HTTP_METHOD.PUT :  {
+        bodyData(req, (body) => {
+          try {
+            const ret = productImgApi.Put(req, JSON.parse(body));
+            fireResponseFromBool(res, ret);
+          }
+          catch (err) {
+            fireResponseFromBool(res, false);
+          }
+        });
+      };
+      break;
+
+      case HTTP_METHOD.DELETE : {
+        const ret = productImgApi.Delete(req);
         fireResponseFromBool(res, ret);
-      });
-    };
-    break;
-    case HTTP_METHOD.DELETE : {
-      const ret = productImgApi.Delete(req);
-      fireResponseFromBool(res, ret);
-    };
-    break;
-    case HTTP_METHOD.OPTIONS : {
-      fireResponseFromBool(res, true);
-    };
-    break;
-  }
+      };
+      break;
+      
+      case HTTP_METHOD.OPTIONS : {
+        fireResponseFromBool(res, true);
+      };
+      break;
+    }
+  
 });
 
 server.listen(port, hostname, () => {
@@ -106,7 +123,9 @@ class SimpleProductImageServiceApiHandler {
     return this.#productModel.get(parseInt(params[2]));
   }
   Post(req, body) {
+    if( body.id === undefined ) return false;
     this.#productModel.set(body.id, body);
+    return true;
   }
   Put(req, body) {
     const data = this.#productModel.get(body.id);

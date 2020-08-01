@@ -2,20 +2,19 @@
     <body>
         <button id='GENERATEPARAM_GETDEL'>Generate GET/DEL param</button>
         <button id='GENERATEPARAM_POSTPUT'>Generate POST/PUT param</button>
-        <div style="margin-top: 6;"></div>
+        <div style='margin-top: 6;'></div>
         <button id='GET'>GET</button>
         <button id='POST'>POST</button>
         <button id='PUT'>PUT</button>
         <button id='DELETE'>DELETE</button>
-        <div style="margin-top: 6;">
-            <textarea id='REQESTPARAM' placeholder="Click on Generate the ... param" style="width: 300; height: 100;"></textarea>
+        <div style='margin-top: 6;'>
+            <textarea id='REQESTPARAM' placeholder='Click on Generate the ... param' style='width: 300; height: 100;'></textarea>
         </div>
-        <div style="font-size: larger;">Request To</div>
+        <div style='font-size: larger;'>Request To</div>
         <div id=REQUEST>!</div>
-        <div style="font-size: larger;">Response:</div>
+        <div style='font-size: larger;'>Response:</div>
         <div id=RESPONSE>!</div>
     </body>
-    <script src="client.js"></script>
     <script>
         (init = () => {
             document.getElementById('GENERATEPARAM_GETDEL').onclick = (e) => {  
@@ -24,12 +23,25 @@
             document.getElementById('GENERATEPARAM_POSTPUT').onclick = (e) => {  
                 document.getElementById('REQESTPARAM').value = '{"id": 4, "productInfo": { "name": "surface", "type": "laptop", "color": "silver"},"image": "https://sf.png" }';
             }
+            document.getElementById('GET').onclick = (e) => {
+                makeRequest('GET');
+            }
+            document.getElementById('DELETE').onclick = (e) => {
+                makeRequest('DELETE');
+            }
+            document.getElementById('POST').onclick = (e) => {
+                makeRequest('POST');
+            }
+            document.getElementById('PUT').onclick = (e) => {
+                makeRequest('PUT');
+            }
         })();
 
         const apiEndpoint = 'http://127.0.0.1:3000';
         const ImgSvcApiEndpoint = `${apiEndpoint}/product`;
         const reponseArea = document.getElementById('RESPONSE');
         const requestTo = document.getElementById('REQUEST');
+        
         const updateRequestUrl = (method, url) => {
             requestTo.innerText = `${method} ${url}`;
             reponseArea.innerText = '';
@@ -37,54 +49,24 @@
         const showErr = (msg) => {
             reponseArea.innerText = msg;
         }
-        document.getElementById('GET').onclick = (e) => {
-            const param = document.getElementById('REQESTPARAM').value;
-            const fetchUrl = `${ImgSvcApiEndpoint}/${param}`;
-            updateRequestUrl('GET', fetchUrl);
-            fetch(fetchUrl).then( (res) => {
-                res.json().then( data => {
-                    reponseArea.innerText = JSON.stringify(data);
-                })
-            }).catch( err => {
-                showErr(err);
-            });
-        }
-        document.getElementById('DELETE').onclick = (e) => {
-            const param = document.getElementById('REQESTPARAM').value;
-            const fetchUrl = `${ImgSvcApiEndpoint}/${param}`;
-            updateRequestUrl('DELETE', fetchUrl);
-            fetch(fetchUrl, { method: 'DELETE'}).then( (res) => {
-                res.json().then( data => {
-                    reponseArea.innerText = JSON.stringify(data);
-                })
-            }).catch( err => {
-                showErr(err);
-            });
-        }
-        document.getElementById('POST').onclick = (e) => {
-            const param = document.getElementById('REQESTPARAM').value;
-            const fetchUrl = `${ImgSvcApiEndpoint}`;
-            updateRequestUrl('POST', fetchUrl);
-            fetch(fetchUrl, { method: 'POST', body: param}).then( (res) => {
-                res.json().then( data => {
-                    reponseArea.innerText = JSON.stringify(data);
-                })
-            }).catch( err => {
-                showErr(err);
-            });
-        }
 
-        document.getElementById('PUT').onclick = (e) => {
+        const makeRequest = (method) => {
             const param = document.getElementById('REQESTPARAM').value;
-            const fetchUrl = `${ImgSvcApiEndpoint}`;
-            updateRequestUrl('PUT', fetchUrl);
-            fetch(fetchUrl, { method: 'PUT', body: param}).then( (res) => {
+            let fetchUrl = ImgSvcApiEndpoint;
+            if( method === 'GET' || method === 'DELETE' ) {
+                fetchUrl = `${ImgSvcApiEndpoint}/${param}`;
+            }
+
+            updateRequestUrl(method, fetchUrl);
+
+            const options = { method : method, body: method === 'POST' || method === 'PUT' ? param : null }; 
+            fetch(fetchUrl, options).then( (res) => {
                 res.json().then( data => {
                     reponseArea.innerText = JSON.stringify(data);
                 })
             }).catch( err => {
                 showErr(err);
             });
-        }
+        } 
     </script>
 </html>
