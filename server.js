@@ -8,13 +8,14 @@ const HTTP_METHOD = {
   POST : 'POST',
   GET : 'GET',
   PUT : 'PUT',
-  DELETE : 'DELETE'
+  DELETE : 'DELETE',
+  OPTIONS : 'OPTIONS'
 }
 
 const RESPONSE_BODY = {
-  OK : '{ status : "ok" }',
-  INVALID : '{ status : "error invalid" }',
-  NOTSUPPORT: '{ status : "not supported" }'
+  OK : '{ "status" : "ok" }',
+  INVALID : '{ "status" : "error invalid" }',
+  NOTSUPPORT: '{ "status" : "not supported" }'
 }
 
 const server = http.createServer((req, res) => {
@@ -52,6 +53,10 @@ const server = http.createServer((req, res) => {
       fireResponseFromBool(res, ret);
     };
     break;
+    case HTTP_METHOD.OPTIONS : {
+      fireResponseFromBool(res, true);
+    };
+    break;
   }
 });
 
@@ -62,6 +67,8 @@ server.listen(port, hostname, () => {
 
 // to be moved to another file // ReqResHelper
 const fireResponse = (res, httpCode, JsonBody) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS, DELETE, PUT');
   res.statusCode = httpCode;
   res.setHeader('Content-Type', 'application/json');
   res.end(JsonBody);

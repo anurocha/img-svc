@@ -1,0 +1,75 @@
+<html>
+    <body>
+        <button id='GENERATEPARAM_GETDEL'>Generate GET/DEL param</button>
+        <button id='GENERATEPARAM_POSTPUT'>Generate POST/PUT param</button>
+        <div style="margin-top: 6;"></div>
+        <button id='GET'>GET</button>
+        <button id='POST'>POST</button>
+        <button id='PUT'>PUT</button>
+        <button id='DELETE'>DELETE</button>
+        <div style="margin-top: 6;">
+            <textarea id='REQESTPARAM' placeholder="Click on Generate the ... param" style="width: 300; height: 100;"></textarea>
+        </div>
+        <div>Request To</div>
+        <div id=REQUEST>!</div>
+        <div>Response:</div>
+        <div id=RESPONSE>!</div>
+    </body>
+    <script src="client.js"></script>
+    <script>
+        (init = () => {
+            document.getElementById('GENERATEPARAM_GETDEL').onclick = (e) => {  
+                document.getElementById('REQESTPARAM').value = 0;
+            }
+            document.getElementById('GENERATEPARAM_POSTPUT').onclick = (e) => {  
+                document.getElementById('REQESTPARAM').value = '{"id": 4, "productInfo": { "name": "surface", "type": "laptop", "color": "silver"},"image": "https://sf.png" }';
+            }
+        })();
+
+        const apiEndpoint = 'http://127.0.0.1:3000';
+        const ImgSvcApiEndpoint = `${apiEndpoint}/product`;
+        const reponseArea = document.getElementById('RESPONSE');
+        const requestTo = document.getElementById('REQUEST');
+        document.getElementById('GET').onclick = (e) => {
+            const param = document.getElementById('REQESTPARAM').value;
+            const fetchUrl = `${ImgSvcApiEndpoint}/${param}`;
+            fetch(fetchUrl).then( (res) => {
+                res.json().then( data => {
+                    requestTo.innerText = fetchUrl;
+                    reponseArea.innerText = JSON.stringify(data);
+                })
+            });
+        }
+        document.getElementById('DELETE').onclick = (e) => {
+            const param = document.getElementById('REQESTPARAM').value;
+            const fetchUrl = `${ImgSvcApiEndpoint}/${param}`;
+            fetch(fetchUrl, { method: 'DELETE'}).then( (res) => {
+                res.json().then( data => {
+                    requestTo.innerText = fetchUrl;
+                    reponseArea.innerText = JSON.stringify(data);
+                })
+            });
+        }
+        document.getElementById('POST').onclick = (e) => {
+            const param = document.getElementById('REQESTPARAM').value;
+            const fetchUrl = `${ImgSvcApiEndpoint}`;
+            fetch(fetchUrl, { method: 'POST', body: param}).then( (res) => {
+                res.json().then( data => {
+                    requestTo.innerText = fetchUrl;
+                    reponseArea.innerText = JSON.stringify(data);
+                })
+            });
+        }
+
+        document.getElementById('PUT').onclick = (e) => {
+            const param = document.getElementById('REQESTPARAM').value;
+            const fetchUrl = `${ImgSvcApiEndpoint}`;
+            fetch(fetchUrl, { method: 'PUT', body: param}).then( (res) => {
+                res.json().then( data => {
+                    requestTo.innerText = fetchUrl;
+                    reponseArea.innerText = JSON.stringify(data);
+                })
+            });
+        }
+    </script>
+</html>
